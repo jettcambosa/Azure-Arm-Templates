@@ -113,33 +113,6 @@
           "sslState": "[if(variables('enableSSL'), 'SniEnabled', json('null'))]",
           "thumbprint": "[if(variables('enableSSL'), reference(resourceId('Microsoft.Web/certificates', parameters('certificateName'))).Thumbprint, json('null'))]"
         }
-      },
-      {
-        "type": "Microsoft.Web/sites/config",
-        "apiVersion": "2019-08-01",
-        "name": "[concat(variables('webAppName'), '/web')]",
-        "location": "[parameters('location')]",
-        "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
-        ],
-        "properties": {
-          "defaultDocuments": [
-              "Default.htm",
-              "Default.html",
-              "Default.asp",
-              "index.htm",
-              "index.html",
-              "iisstart.htm",
-              "default.aspx",
-              "index.php",
-              "hostingstart.html"
-          ],
-          "netFrameworkVersion": "v4.0",
-          "webSocketsEnabled": false,
-          "alwaysOn": true,
-          "autoHealEnabled": false,
-          "minTlsVersion": "1.2"
-        }
       }
     ]
   }
