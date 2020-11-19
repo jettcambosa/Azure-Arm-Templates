@@ -111,13 +111,12 @@
         }
       },
       {
-          "type": "Microsoft.Web/sites/siteextensions",
-          "apiVersion": "2019-08-01",
-          "name": "[concat(variables('webAppName'), '/NewRelic.Azure.WebSites.Extension')]",
-          "location": "[parameters('location')]",
-          "dependsOn": [
-              "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
-          ]
+        "type": "siteextensions",
+        "apiVersion": "2019-08-01",
+        "name": "NewRelic.Azure.WebSites.Extension",
+        "dependsOn": [
+          "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
+        ]
       },
       {
         "condition": "[variables('enableSSL')]",
