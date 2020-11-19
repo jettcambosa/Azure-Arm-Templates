@@ -111,14 +111,6 @@
         }
       },
       {
-        "type": "siteextensions",
-        "apiVersion": "2019-08-01",
-        "name": "NewRelic.Azure.WebSites.Extension",
-        "dependsOn": [
-          "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
-        ]
-      },
-      {
         "condition": "[variables('enableSSL')]",
         "type": "Microsoft.Web/certificates",
         "apiVersion": "2019-08-01",
@@ -145,6 +137,14 @@
           "sslState": "[if(variables('enableSSL'), 'SniEnabled', json('null'))]",
           "thumbprint": "[if(variables('enableSSL'), reference(resourceId('Microsoft.Web/certificates', parameters('certificateName'))).Thumbprint, json('null'))]"
         }
+      },
+      {
+        "type": "Microsoft.Web/sites/siteextensions",
+        "apiVersion": "2019-08-01",
+        "name": "NewRelic.Azure.WebSites.Extension",
+        "dependsOn": [
+          "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
+        ]
       }
     ]
   }
