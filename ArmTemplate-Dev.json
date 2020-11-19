@@ -19,19 +19,6 @@
         "type": "string",
         "defaultValue": "S1"
       },
-      "language": {
-        "type": "string",
-        "defaultValue": ".net",
-        "allowedValues": [
-          ".net",
-          "php",
-          "node",
-          "html"
-        ],
-        "metadata": {
-          "description": "The language stack of the app."
-        }
-      },
       "customHostname": {
         "type": "string",
         "defaultValue": "",
@@ -64,26 +51,7 @@
     "variables": {
       "webAppName": "[concat(parameters('environmentName'), '-', parameters('productName'))]",
       "appServicePlanName": "[concat(parameters('environmentName'), '-', parameters('productName'), '-sp')]",
-      "enableSSL": "[not(empty(parameters('existingKeyVaultId')))]",
-      "configReference": {
-        ".net": {
-          "comments": ".Net app. No additional configuration needed."
-        },
-        "html": {
-          "comments": "HTML app. No additional configuration needed."
-        },
-        "php": {
-          "phpVersion": "7.4"
-        },
-        "node": {
-          "appSettings": [
-            {
-              "name": "WEBSITE_NODE_DEFAULT_VERSION",
-              "value": "12.15.0"
-            }
-          ]
-        }
-      }
+      "enableSSL": "[not(empty(parameters('existingKeyVaultId')))]"
     },
     "resources": [
       {
@@ -97,7 +65,6 @@
         "properties": {
           "numberOfWorkers": 1,
           "clientAffinityEnabled": false,
-          "siteConfig": [ "[variables('configReference')[parameters('language')]]" ],
           "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
         }
       },
