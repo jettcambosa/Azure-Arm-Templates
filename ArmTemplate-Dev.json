@@ -140,7 +140,7 @@
       },
       {
         "type": "Microsoft.Web/sites/siteextensions",
-        "name": "[concat(variables('webAppName'), '/NewRelic.Azure.WebSites.Extension')]",
+        "name": "[concat(variables('webAppName'),'/NewRelic.Azure.WebSites.Extension')]",
         "apiVersion": "2019-08-01",
         "dependsOn": [
           "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
