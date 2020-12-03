@@ -1,0 +1,109 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "location": {
+        "type": "string",
+        "defaultValue": "[resourceGroup().location]",
+        "metadata": {
+          "description": "The location in which the resources should be deployed."
+        }
+      },
+      "environmentName": {
+        "type": "string"
+      },
+      "productName": {
+        "type": "string"
+      },
+      "sku": {
+        "type": "string",
+        "defaultValue": "S1"
+      },
+      "customHostname": {
+        "type": "string",
+        "defaultValue": "",
+        "metadata": {
+          "description": "The custom hostname that you wish to add."
+        }
+      },
+      "certificateName": {
+        "type": "string",
+        "defaultValue": "",
+        "metadata": {
+          "description": "The certificate name that you wish to add."
+        }
+      },
+      "existingKeyVaultId": {
+        "type": "string",
+        "defaultValue": "",
+        "metadata": {
+          "description": "Existing Key Vault resource Id for the SSL certificate, leave this blank if not enabling SSL"
+        }
+      },
+      "existingKeyVaultSecretName": {
+        "type": "string",
+        "defaultValue": "",
+        "metadata": {
+          "description": "Key Vault Secret that contains a PFX certificate, leave this blank if not enabling SSL"
+        }
+      }
+    },
+    "variables": {
+      "webAppName": "[concat(parameters('environmentName'), '-', parameters('productName'))]",
+      "appServicePlanName": "[concat(parameters('environmentName'), '-', parameters('productName'), '-sp')]",
+      "enableSSL": "[not(empty(parameters('existingKeyVaultId')))]"
+    },
+    "resources": [
+      {
+        "apiVersion": "2019-08-01",
+        "type": "Microsoft.Web/sites",
+        "name": "[variables('webAppName')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+        ],
+        "properties": {
+          "numberOfWorkers": 1,
+          "clientAffinityEnabled": false,
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+        }
+      },
+      {
+        "type": "Microsoft.Web/serverfarms",
+        "name": "[variables('appServicePlanName')]",
+        "apiVersion": "2019-08-01",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "[parameters('sku')]"
+        }
+      },
+      {
+        "condition": "[variables('enableSSL')]",
+        "type": "Microsoft.Web/certificates",
+        "apiVersion": "2019-08-01",
+        "name": "[parameters('certificateName')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
+        ],
+        "properties": {
+          "keyVaultId": "[parameters('existingKeyVaultId')]",
+          "keyVaultSecretName": "[parameters('existingKeyVaultSecretName')]",
+          "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('appServicePlanName'))]"
+        }
+      },
+      {
+        "type": "Microsoft.Web/sites/hostnameBindings",
+        "name": "[concat(variables('webAppName'), '/', parameters('customHostname'))]",
+        "apiVersion": "2019-08-01",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Web/certificates', parameters('certificateName'))]"
+        ],
+        "properties": {
+          "sslState": "[if(variables('enableSSL'), 'SniEnabled', json('null'))]",
+          "thumbprint": "[if(variables('enableSSL'), reference(resourceId('Microsoft.Web/certificates', parameters('certificateName'))).Thumbprint, json('null'))]"
+        }
+      }
+    ]
+  }
